@@ -81,7 +81,7 @@ FHSer\_Hjellming\_Radio\_Photometry.txt
 \end{Large}
 
 
-%\subsection{Multiple Datasets from a Single Source}
+\subsection{Multiple Datasets from a Single Source}
 
 
 
@@ -91,7 +91,7 @@ FHSer\_Hjellming\_Radio\_Photometry.txt
 \section{Example: Ticket for FH Ser Radio (Photometry) Data}
 
 \begin{itemize}
-\item \textbf{OBJECT NAME:} FHSer
+\item \textbf{OBJECT NAME:} FH Ser
 \item \textbf{TIME UNITS:} Days
 \item \textbf{FLUX UNITS:} mJy
 \item \textbf{FLUX ERROR UNITS:} mJy
@@ -101,11 +101,11 @@ FHSer\_Hjellming\_Radio\_Photometry.txt
 \item \textbf{TIME SYSTEM:} MJD
 \item \textbf{ASSUMED DATE OF OUTBURST:}
 %\item \textbf{UPPER LIMIT:} 
-\item \textbf{TELESCOPE:} NA
 \item \textbf{INSTRUMENT:} NA
-%\item \textbf{OBSERVATORY:} VLA
-\item \textbf{OBSERVER:} Hjellming, R.
+\item \textbf{TELESCOPE:} NA
 \item \textbf{REFERENCE:} 1979AJ.....84.1619H
+\item \textbf{OBSERVATORY:} VLA
+\item \textbf{OBSERVER:} Hjellming, R.
 \item \textbf{DATA FILENAME:}
 \item \textbf{TIME COLUMN NUMBER:}
 \item \textbf{FLUX COLUMN NUMBER:} 
@@ -113,9 +113,6 @@ FHSer\_Hjellming\_Radio\_Photometry.txt
 %\item \textbf{FILTER \emph{or} FREQUENCY \emph{or} ENERGY RANGE COLUMN NUMBER:} 
 \item \textbf{FILTER/FREQUENCY/ENERGY RANGE COLUMN NUMBER:} 
 \item \textbf{UPPER LIMIT FLAG COLUMN NUMBER:} 
-\item \textbf{TELESCOPE COLUMN:} NA
-\item \textbf{INSTRUMENT COLUMN:} NA
-\item \textbf{OBSERVER COLUMN:} NA
 \item \textbf{TICKET STATUS:} Waiting for acquisition.
 \end{itemize}
 

@@ -1,0 +1,3 @@
+git commit -m "Fourth commit;
+
+git commit -m "Fifth commit: added the optical/IR photometry file for V1324 Sco, as well as its ticket, to give an example of what a compeleted ticket looks like. Also decided to ditch the 'Instrument' in the photometry ticket, as instruments usually don't matter in photometry, just spectra."

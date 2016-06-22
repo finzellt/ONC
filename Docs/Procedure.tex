@@ -14,7 +14,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 \newcommand{\angstrom}{\text{\normalfont\AA}}
-
+\usepackage[T1]{fontenc}
 
 \begin{document}
 %\section{Phase I}
@@ -83,7 +83,61 @@ FHSer\_Hjellming\_Radio\_Photometry.txt
 \end{Large}
 
 
-%\subsection{Multiple Datasets from a Single Source}
+\subsection{Photometry Tickets}
+An example of a photometry ticket can be found in Section~\ref{sec:ExampTickPhot}. More details will come in the next update to the procedure section. 
+
+
+\subsection{Spectra Tickets}
+The primary difference between the spectra tickets and the photometry tickets is that there's a good chance that you'll have multiple spectra in a single ticket. It is relatively common for a single paper to have spectra from multiple telescopes/instruments, each of which can/will have varying resolution and SNR.
+
+Rather than generating multiple tickets for all of these spectra, we will instead have a single ticket that points to a separate meta data file that is \emph{comma delimited}, with columns that provide requisite meta data for each spectra that you pull from a single reference/article. 
+
+This means that the primary purpose of the ticket will be to serve as a pointer to the secondary meta data file, detailing what every column of this secondary meta data file holds. An example of a spectra ticket can be found in section~\ref{sec:ExampTickSpectra}; an example of the spectra meta data file can be found in section~\ref{sec:ExampTickSpectraMetaDataFile}. 
+
+\textbf{NOTE:} Feel free to write the spectra meta data file in Excel or the open office equivalent; just remember that you \emph{must save it as a csv file.}
+
+
+
+
+
+
+
+
+
+\section{Data Research}
+\subsection{Finding Novae}
+Before you can start looking for data on novae you need to actually know what novae exist. \textbf{NOTE} At this beginning stage we will only be working on novae that have gone off in the Milky Way (galactic novae). A thorough list of galactic novae can be found here \url{http://projectpluto.com/galnovae/galnovae.txt}. 
+
+\subsubsection{Naming Convention for Novae}
+When a nova is first observed there is usually a period of time where it isn't entirely clear that it is in fact a nova. From an observers perspective, it just looks like a new bright thing in the sky. It needs to be confirmed as a nova, something that is usually done spectroscopically.
+
+However, when all you have is just a new bright thing (and you think it might be a nova) people will refer to it as PNV J17574766+0444243: PNV means "possible nova", and the rest of the name is its specific coordinates (RA=17:57:47.66, Dec=+04:44:23.3).
+
+Once the new bright thing has been confirmed to be a nova it still needs an "official" name, which usually takes time. While waiting for the "official" name, most astronomers use a shorthand name to describe it. The convention for this shorthand is:\\
+
+\noindent
+%\begin{Large}
+\textbf{Nova (or just N)} $<$\texttt{Constellation the nova was found in}$>$ $<$\texttt{Year the nova was found in}$>$ 
+%\end{Large}
+So, if there is a nova found in the constellation Sagittarius in 2015, then the name of the nova would be \textbf{Nova Sgr 2015} (Sgr is the shorthand for Sagittarius). If there were more than one nova in a given year in Sagittarius, then you would have to append a number 2 at the end. So the second nova in Sgr would be \textbf{Nova Sgr 2015 2}. 
+
+The nova will finally get an "official" name that is based on what number event this was in the particular constellation, usually prepended with the letter V. So, for instance, for the above nova, it was given the name V5667 Sgr. 
+
+To make a long story short, there is a good chance that you will run into multiple names for the same nova. To check what different names exist for a single nova you can go to VSX Search (\url{https://www.aavso.org/vsx/index.php?view=search.top}).
+
+
+
+
+
+\subsection{Finding Papers/Literature}
+Your primary resource for data research will be ads (\url{http://adsabs.harvard.edu/abstract_service.html}). This allows you to search by author, title keywords, abstract keywords, etc.
+
+More details will come in the next update to the procedure section. 
+
+
+
+
+
 
 
 
@@ -91,7 +145,7 @@ FHSer\_Hjellming\_Radio\_Photometry.txt
 \newpage
 \appendix
 \section{Example: Ticket for FH Ser Radio (Photometry) Data}
-
+\label{sec:ExampTickPhot}
 \begin{itemize}
 \item \textbf{OBJECT NAME:} FHSer
 \item \textbf{TIME UNITS:} Days
@@ -120,6 +174,51 @@ FHSer\_Hjellming\_Radio\_Photometry.txt
 \item \textbf{OBSERVER COLUMN:} NA
 \item \textbf{TICKET STATUS:} Waiting for acquisition.
 \end{itemize}
+
+
+
+
+
+
+\newpage
+\section{Example: Ticket for V1324 Sco Optical Spectra Data}
+\label{sec:ExampTickSpectra}
+\begin{itemize}
+\item \textbf{OBJECT NAME:} V1324Sco
+\item \textbf{WAVELENGTH REGIME:} Optical
+\item \textbf{TIME SYSTEM:} MJD
+\item \textbf{ASSUMED DATE OF OUTBURST:} NA
+\item \textbf{REFERENCE:} Finzell et al (In Prep)
+\item \textbf{METADATA FILENAME:} Optical/Spectra/Finzell/ V1324Sco\char`_Finzell\char`_Optical\char`_Spectra\char`_METADataFile.csv
+\item \textbf{FILENAME COLUMN:} 0
+\item \textbf{WAVELENGTH COLUMN NUMBER:} 1
+\item \textbf{FLUX COLUMN NUMBER:} 2
+\item \textbf{FLUX ERROR COLUMN NUMBER:} 3
+\item \textbf{FLUX UNITS COLUMN:} 5
+\item \textbf{DATE COLUMN:} 6
+\item \textbf{TELESCOPE COLUMN:} 8
+\item \textbf{INSTRUMENT COLUMN:} 9
+\item \textbf{OBSERVER COLUMN:} 7
+\item \textbf{SNR COLUMN:} NA
+\item \textbf{DISPERSION COLUMN:} 9
+\item \textbf{WAVELENGTH RANGE COLUMN:}10,11
+\item \textbf{DEREDDENED FLAG:} False
+\item \textbf{TICKET STATUS:} COMPLETED
+\end{itemize}
+
+\subsection{Example: Meta Data File for V1324 Sco Optical Spectra Data}
+\label{sec:ExampTickSpectraMetaDataFile}
+\begin{figure}[h]
+\centering
+\includegraphics[width=15cm]{Spectra_MetaDataFile_Example} 
+%\caption{ }
+%\label{fig:1}
+\end{figure}
+
+
+
+
+
 
 %Hopefully we will be able to implement multiple phases of 
 

@@ -32,7 +32,7 @@ while i < len(dataFields):
 			else:
 				continue
 		length[i] = len(dataFields[i]) + len(userInput[i])
-		ticketText = ticketText + userInput[i] + "\n"			
+		ticketText = ticketText + dataFields[i] + userInput[i] + "\n"			
 		i += 1
 	
 ticketText = ticketText[:-1]
@@ -40,7 +40,7 @@ ticketText = ticketText[:-1]
 author = userInput[12].lstrip()
 
 
-myFile = open(directory + "/" + userInput[0].strip() + "_" + author.split()[0] + "_" + userInput[7].strip() + "_" + userInput[5].strip() + ".txt", "w")
+myFile = open(directory + "/" + userInput[0].replace(" ", "") + "_" + author.split()[0] + "_" + userInput[7].replace(" ", "") + "_" + userInput[5].strip() + ".txt", "w")
 myFile.write(ticketText)
 myFile.close()
 

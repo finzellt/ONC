@@ -4,8 +4,23 @@
 #6/21/16
 
 
-dataFields = ["OBJECT NAME: ", "TIME UNITS: ", "FLUX UNITS: ",  "FLUX ERROR UNITS: ", "FILTER SYSTEM: ", "DATATYPE: ", "MAGNITUDE SYSTEM: ", "WAVELENGTH REGIME: ", "TIME SYSTEM: ", "ASSUMED DATE OF OUTBURST: ", "TELESCOPE: ", "OBSERVER: ", "REFERENCE: ", "DATA FILENAME: ", "TIME COLUMN NUMBER: ", "FLUX COLUMN NUMBER: ", "FLUX ERROR COLUMN NUMBER: ", "FILTER/FREQUENCY/ENERGY RANGE COLUMN NUMBER: ", "UPPER LIMIT FLAG COLUMN NUMBER: ", "TELESCOPE COLUMN: ", "OBSERVER COLUMN: ", "FILTER SYSTEM COLUMN: ", "TICKET STATUS: "]
 
+#generate correct ticket
+validtype = True
+while validtype:
+	datatype = input("DATATYPE: ")	
+	if datatype[0] in ["P","p"]:
+		datatype = "Photometry"
+		dataFields = ["OBJECT NAME: ", "TIME UNITS: ", "FLUX UNITS: ",  "FLUX ERROR UNITS: ", "FILTER SYSTEM: ", "MAGNITUDE SYSTEM: ", "WAVELENGTH REGIME: ", "TIME SYSTEM: ", "ASSUMED DATE OF OUTBURST: ", "TELESCOPE: ", "OBSERVER: ", "REFERENCE: ", "DATA FILENAME: ", "TIME COLUMN NUMBER: ", "FLUX COLUMN NUMBER: ", "FLUX ERROR COLUMN NUMBER: ", "FILTER/FREQUENCY/ENERGY RANGE COLUMN NUMBER: ", "UPPER LIMIT FLAG COLUMN NUMBER: ", "TELESCOPE COLUMN NUMBER: ", "OBSERVER COLUMN NUMBER: ", "FILTER SYSTEM COLUMN NUMBER: ", "TICKET STATUS: "]
+	else if datatype[0] in ["S","s"]
+		dattype = "Spectra"
+		dataFields = ["OBJECT NAME: ", "FLUX UNITS: ", "FLUX ERROR UNITS: ", "WAVELENGTH REGIME: ", "TIME SYSTEM: ", "ASSUMED DATE OF OUTBURST: ", "DEREDDENED FLAG: ", "TELESCOPE: ", "INSTRUMENT: ", "OBSERVER: ", "SNR: ", "RESOLUTION: ", "WAVELENGTH RANGE: ", "REFERENCE: ", "DATA FILENAME: ", "FLUX COLUMN NUMBER: ", "FLUX ERROR COLUMN NUMBER: ", "TICKET STATUS: "] 
+	else:
+		continue
+	validtype = False
+
+
+	
 ticketText = ""
 userInput = []
 length = []
@@ -37,10 +52,16 @@ while i < len(dataFields):
 	
 ticketText = ticketText[:-1]
 
-author = userInput[12].lstrip()
-
-
-myFile = open(directory + "/" + userInput[0].replace(" ", "") + "_" + author.split()[0] + "_" + userInput[7].replace(" ", "") + "_" + userInput[5].strip() + ".txt", "w")
+if datatype == "Photometry":
+	author = userInput[11].lstrip()
+	novaName = userInput[0].replace(" ", "")
+	regime = userInput[6].replace(" ", "")
+if datatype == "Spectra":
+	author = userInput[13].lstrip()
+	regime = userInput[3].replace(" ", "")
+	novaName = userInput[0].replace(" ", "")
+	
+myFile = open(directory + "/" + novaName + "_" + author.split()[0].replace(",", "") + "_" + regime + "_" + datatype + ".txt", "w")
 myFile.write(ticketText)
 myFile.close()
 

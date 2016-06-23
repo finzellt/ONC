@@ -7,27 +7,32 @@
 dataFields = ["OBJECT NAME: ", "TIME UNITS: ", "FLUX UNITS: ",  "FLUX ERROR UNITS: ", "FILTER SYSTEM: ", "DATATYPE: ", "MAGNITUDE SYSTEM: ", "WAVELENGTH REGIME: ", "TIME SYSTEM: ", "ASSUMED DATE OF OUTBURST: ", "TELESCOPE: ", "OBSERVER: ", "REFERENCE: ", "DATA FILENAME: ", "TIME COLUMN NUMBER: ", "FLUX COLUMN NUMBER: ", "FLUX ERROR COLUMN NUMBER: ", "FILTER/FREQUENCY/ENERGY RANGE COLUMN NUMBER: ", "UPPER LIMIT FLAG COLUMN NUMBER: ", "TELESCOPE COLUMN: ", "OBSERVER COLUMN: ", "FILTER SYSTEM COLUMN: ", "TICKET STATUS: "]
 
 ticketText = ""
-i = 0
-length = []
 userInput = []
+length = []
+for i in range(len(dataFields)):
+	userInput.append(0)
+	length.append(0)
+
+i = 0
+directory =""
 while i < len(dataFields):
-	userInput.append(input(dataFields[i]))
+	userInput[i] = input(dataFields[i])
 	if userInput in ["goback", "Goback", "go_back", "Go_back"]:
 		if i == 0:	
 			print("You can't go back now. This is the first field.")
 		else:
-			i -= 1
-			#careful...this uses a variable that isn't created until the first iteration
 			ticketText = ticketText[0:-length[i-1]]
+			i -= 1
 	else:
-		if i == len(dataFields) - 1	
+		if i == len(dataFields) - 1:
 			if userInput[i][0] in ["C", "c"]:
 				directory = "CompletedTickets"
-				continue
-			else if userInput[i][0] in ["P", "p"]:
+			elif userInput[i][0] in ["P", "p"]:
 				directory = "PendingTickets"
-		length.append(len(dataFields[i]) + len(userInput[i]))
-		ticketText = ticketText + userInput[i] + "\n"			
+			else:
+				continue
+		length[i] = len(dataFields[i]) + len(userInput[i])
+		ticketText = ticketText + dataFields[i] + userInput[i] + "\n"			
 		i += 1
 	
 ticketText = ticketText[:-1]
@@ -35,7 +40,7 @@ ticketText = ticketText[:-1]
 author = userInput[12].lstrip()
 
 
-myFile = open(directory + "/" + userInput[0] + "_" + author.split()[0] + "_" + userInput[7] + "_" + userInput[5] + ".txt", "w")
+myFile = open(directory + "/" + userInput[0].replace(" ", "") + "_" + author.split()[0] + "_" + userInput[7].replace(" ", "") + "_" + userInput[5].strip() + ".txt", "w")
 myFile.write(ticketText)
 myFile.close()
 

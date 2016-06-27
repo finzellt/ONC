@@ -17,22 +17,19 @@ NewDirectoryTicketDirectory = NewDirectoryRoot+'/Tickets'
 NewDirectoryDataDirectory = NewDirectoryRoot+'/Data'
 NewDirectoryPendingTicketSubDirectory = NewDirectoryTicketDirectory+'/PendingTickets'
 NewDirectoryCompletedTicketSubDirectory = NewDirectoryTicketDirectory+'/CompletedTickets'
+directoryList = [NewDirectoryRoot, NewDirectoryTicketDirectory, NewDirectoryDataDirectory, NewDirectoryPendingTicketSubDirectory, NewDirectoryCompletedTicketSubDirectory]
+BlankFile = "blankreadme.txt"
 
-if not os.path.exists(NewDirectoryRoot):
-    os.makedirs(NewDirectoryRoot)
-
-if not os.path.exists(NewDirectoryTicketDirectory):
-    os.makedirs(NewDirectoryTicketDirectory)
-
-if not os.path.exists(NewDirectoryDataDirectory):
-    os.makedirs(NewDirectoryDataDirectory)
+for directory in directoryList:
+	if not os.path.exists(directory):
+		os.makedirs(directory)
+		f = open(directory+"/"+BlankFile, "w")
+		f.write("")
+		f.close()
 
 
-if not os.path.exists(NewDirectoryPendingTicketSubDirectory):
-    os.makedirs(NewDirectoryPendingTicketSubDirectory)
 
-if not os.path.exists(NewDirectoryCompletedTicketSubDirectory):
-    os.makedirs(NewDirectoryCompletedTicketSubDirectory)
+
 
 
 

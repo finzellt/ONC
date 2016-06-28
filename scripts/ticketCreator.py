@@ -60,14 +60,8 @@ if datatype == "Spectra":
 	author = userInput[13].lstrip()
 	regime = userInput[3].replace(" ", "")
 	novaName = userInput[0].replace(" ", "")
-try:
-	myFile = open("../Individual_Novae/" + novaName + "/" + "Tickets/" + directory + "/" + novaName + "_" + author.split()[0].replace(",", "") + "_" + regime + "_" + datatype + ".txt", "w")
-	myFile.write(ticketText)
-	myFile.close()
-except:
-	print("Problem writing to file.")
-	path = input("Enter full file path from ONC/Individual_Novae/ : ")
-	myFile = open("../Individual_Novae/" + path, "w")
-	myFile.write(ticketText)
-	myFile.close()
 	
+myFile = open(directory + "/" + novaName + "_" + author.split()[0].replace(",", "") + "_" + regime + "_" + datatype + ".txt", "w")
+myFile.write(ticketText)
+myFile.close()
+

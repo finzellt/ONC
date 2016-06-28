@@ -1,5 +1,6 @@
 #ONC/scripts/softlinkTickets.py
 #soft links tickets in individual novae directories
+#6/28/16
 
 import os
 
@@ -7,4 +8,11 @@ for directoryName in os.listdir("../Individual_Novae"):
 	if "." not in directoryName:
 		for ticketType in ["CompletedTickets", "PendingTickets"]:	
 			for fileName in os.listdir("../Individual_Novae/" + directoryName + "/Tickets/" + ticketType):
-				os.symlink("../Tickets/" + ticketType + "/" + fileName, "../Individual_Novae/" + directoryName + "/Tickets/" + ticketType + "/" + fileName)
+				dest = "../Tickets/" + ticketType + "/" + fileName
+				if not os.path.exists(dest):
+					if os.path.lexists(dest):
+						os.remove(dest)
+					try:				
+						os.symlink("../../Individual_Novae/" + directoryName + "/Tickets/" + ticketType + "/" + fileName, dest)
+					except FileExistsError:
+						print("There was a problem soft-linking " + fileName)

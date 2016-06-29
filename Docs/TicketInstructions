@@ -1,0 +1,12 @@
+Instructions for Creating Directories and Tickets:
+
+1. In the Individual Novae directory, run the MakeNewNovaDirectory.py script by typing "python3 MakeNewNovaDirectory <nova name>". The nova name should be one of three forms:
+	a. <single capital letter>_<three letter constellation abbreviation>
+	b. <two capital letters>_<three letter constellation abbreviation>
+	c. V<three or four numbers>_<three letter constellation abbreviation>
+This should create  a new directory within the Individual Novae Directory, as well as put blank readme files in any directories, so they appear on github.
+
+2. Once a directory has been made for a nova, then tickets can be made. The ticketCreator.py script is located in the Scripts directory. Type "python3 ticketCreator.py" to open the dialogue. 
+
+3. Below are the rules for filling out a ticket:
+	a.

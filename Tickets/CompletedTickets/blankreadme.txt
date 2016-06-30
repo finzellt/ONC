@@ -1,1 +1,1 @@
-../../Individual_Novae/DQHer/Tickets/CompletedTickets/blankreadme.txt
+../../Individual_Novae/V4744_Sgr/Tickets/CompletedTickets/blankreadme.txt

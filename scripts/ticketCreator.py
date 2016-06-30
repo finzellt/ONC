@@ -54,14 +54,14 @@ ticketText = ticketText[:-1]
 
 if datatype == "Photometry":
 	author = userInput[11].lstrip()
-	novaName = userInput[0].replace(" ", "")
+	novaName = userInput[0].strip().replace(" ", "_")
 	regime = userInput[6].replace(" ", "")
 if datatype == "Spectra":
 	author = userInput[13].lstrip()
 	regime = userInput[3].replace(" ", "")
 	novaName = userInput[0].replace(" ", "")
 	
-myFile = open(directory + "/" + novaName + "_" + author.split()[0].replace(",", "") + "_" + regime + "_" + datatype + ".txt", "w")
+myFile = open("../Individual_Novae/" + novaName + "/Tickets/" + directory + "/" + novaName + "_" + author.split()[0].replace(",", "") + "_" + regime + "_" + datatype + ".txt", "w")
 myFile.write(ticketText)
 myFile.close()
 

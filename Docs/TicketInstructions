@@ -35,5 +35,8 @@ This should create  a new directory within the Individual Novae Directory, as we
 
 4. If a particular field is not known at the time of creating a ticket, but is expected to be known in the future, then leave it blank. However, please note that only pending tickets can have blank fields. A completed ticket must either have the field filled out or have it marked as "NA".
 
-5. Now that a ticket has been created (or while you are filling out a ticket), the data file must be formatted and saved. All data files must either be a .txt or .csv file in order to work with our scripts. The data files must, at a minimum, have date, flux, filter/frequency/enery range, and filter system. 
+5. Now that a ticket has been created (or while you are filling out a ticket), the data file must be formatted and saved. All data files must either be a .txt or .csv file in order to work with our scripts. The data files must, at a minimum, have date, flux, filter/frequency/enery range, and filter system. Save the data file in ONC/IndividualNovae/<Nova Name>/Data/<Wavelength Regime>. See instruction #6 for specifics on AAVSO data, otherwise skip to #7.
+
+6.
 	
+7. Once the data file has been saved, softlinks need to be created. In the scripts directory, simply run softlinkTickets.py and the links will be automatically made.

@@ -32,7 +32,7 @@ i = 0
 directory =""
 while i < len(dataFields):
 	userInput[i] = input(dataFields[i])
-	if userInput in ["goback", "Goback", "go_back", "Go_back"]:
+	if userInput[i] in ["goback", "Goback", "go_back", "Go_back"]:
 		if i == 0:	
 			print("You can't go back now. This is the first field.")
 		else:

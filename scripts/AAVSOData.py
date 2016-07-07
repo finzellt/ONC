@@ -28,8 +28,6 @@ while True:
 	if cols[4] not in filters:
 		filter_flag += 1
 		
-
-
 	if lim_flag == 1:
 		cols[1] += ",1"
 	else:

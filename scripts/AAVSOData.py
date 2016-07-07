@@ -16,6 +16,7 @@ while True:
 	try:
 		for char in cols[1]:
 			if char == "<":
+				cols[1] = cols[1][1:]
 				flag += 1
 	except IndexError:
 		continue

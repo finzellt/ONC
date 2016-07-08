@@ -14,7 +14,8 @@ while validtype:
 		dataFields = ["OBJECT NAME: ", "TIME UNITS: ", "FLUX UNITS: ",  "FLUX ERROR UNITS: ", "FILTER SYSTEM: ", "MAGNITUDE SYSTEM: ", "WAVELENGTH REGIME: ", "TIME SYSTEM: ", "ASSUMED DATE OF OUTBURST: ", "TELESCOPE: ", "OBSERVER: ", "REFERENCE: ", "BIBCODE: ", "DATA FILENAME: ", "TIME COLUMN NUMBER: ", "FLUX COLUMN NUMBER: ", "FLUX ERROR COLUMN NUMBER: ", "FILTER/FREQUENCY/ENERGY RANGE COLUMN NUMBER: ", "UPPER LIMIT FLAG COLUMN NUMBER: ", "TELESCOPE COLUMN NUMBER: ", "OBSERVER COLUMN NUMBER: ", "FILTER SYSTEM COLUMN NUMBER: ", "TICKET STATUS: "]
 	elif datatype[0] in ["S","s"]:
 		dattype = "Spectra"
-		dataFields = ["OBJECT NAME: ", "FLUX UNITS: ", "FLUX ERROR UNITS: ", "WAVELENGTH REGIME: ", "TIME SYSTEM: ", "ASSUMED DATE OF OUTBURST: ", "DEREDDENED FLAG: ", "TELESCOPE: ", "INSTRUMENT: ", "OBSERVER: ", "SNR: ", "RESOLUTION: ", "WAVELENGTH RANGE: ", "REFERENCE: ", "BIBCODE: ", "DATA FILENAME: ", "FLUX COLUMN NUMBER: ", "FLUX ERROR COLUMN NUMBER: ", "TICKET STATUS: "] 
+		dataFields = ["OBJECT NAME: ", "FLUX UNITS: ", "FLUX ERROR UNITS: ", "WAVELENGTH REGIME: ", "TIME SYSTEM: ", "ASSUMED DATE OF OUTBURST: ", "REFERENCE: ", "BIBCODE: ", "DEREDDENED FLAG: ", "METADATA FILENAME: ", "FILENAME COLUMN: ", "WAVELENGTH COLUMN: ", "FLUX COLUMN: ", "FLUX ERROR COLUMN: ", "FLUX UNITS COLUMN: ", "DATE COLUMN: ", "TELESCOPE COLUMN: ", "INSTRUMENT COLUMN: ", "OBSERVER COLUMN: ", "SNR COLUMN: ", "DISPERSION COLUMN: ", "RESOLUTION COLUMN: ", "WAVELENGTH RANGE COLUMN: ", "TICKET STATUS: "]
+ 
 	else:
 		continue
 	validtype = False
@@ -57,7 +58,7 @@ if datatype == "Photometry":
 	novaName = userInput[0].strip().replace(" ", "_")
 	regime = userInput[6].replace(" ", "")
 if datatype == "Spectra":
-	author = userInput[13].lstrip()
+	author = userInput[6].lstrip()
 	regime = userInput[3].replace(" ", "")
 	novaName = userInput[0].replace(" ", "")
 	

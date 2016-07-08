@@ -57,7 +57,11 @@ for filename in os.listdir(directory):
 		spectra = fitsFile[0]
 		header = spectra.header
 
-		_date = header["DATE-OBS"]		
+		_date = header["DATE-OBS"]
+		if filename == "V2214OPF.FIT":
+			_date = "09-06-88"
+		if filename == "V2214OPM.FIT":
+			_date = "25-07-88"
 		_time = header["UT"].strip()
 	
 		_time = "0" + _time if re.match("r\d:", _time) else _time

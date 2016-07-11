@@ -37,6 +37,6 @@ This should create  a new directory within the Individual Novae Directory, as we
 
 5. Now that a ticket has been created (or while you are filling out a ticket), the data file must be formatted and saved. All data files must either be a .txt or .csv file in order to work with our scripts. The data files must, at a minimum, have date, flux, filter/frequency/enery range, and filter system. Save the data file in ONC/IndividualNovae/<Nova Name>/Data/<Wavelength Regime>. See instruction #6 for specifics on AAVSO data, otherwise skip to #7.
 
-6.
+6. Go to the AAVSO website and request the data for the nova in ascii format. Select all the data, then copy and paste it into GEDIT, removing the headers. Save this as a .csv file with a name like <Nova Name>_AAVSO.csv. This data may have unacceptable filters and/or limiting magnitudes. Run the AAVSOData.py script on your own machine to handle these. Once the data file has gone through this script, put it into the data directory of the correct nova. Now, make a completed ticket for the data. 
 	
 7. Once the data file has been saved, softlinks need to be created. In the scripts directory, simply run softlinkTickets.py and the links will be automatically made.

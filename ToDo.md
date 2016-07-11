@@ -1,12 +1,7 @@
 SCRIPTS
 --------------
-	Convert .FITS spectra to ASCII files
-	Get alias names for novae from SIMBAD
-	OCR for photometry tables (Max is currently finishing this up)
-
-
-
-
+	Graph OCR
+	Fix table OCR so that it works with multiple pages of the same pdf
 
 
 CATALOGS/DATA TO ADD

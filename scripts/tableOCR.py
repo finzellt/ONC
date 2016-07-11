@@ -18,6 +18,7 @@ pdfList = []
 if len(sys.argv) > 1:
 	for i in range(1, len(sys.argv)):
 		pdfList.append(sys.argv[i])
+
 else:
 	firstString = "skip"
 	while True:
@@ -29,6 +30,7 @@ else:
 
 if pdfList == []:
 	pdfList = defaultPdfList
+
 
 class Line:
 	def __init__(self, x1, y1, x2, y2, color):
@@ -60,6 +62,28 @@ class Line:
 
 	def cmpKey(self):
 		return (self.avgx if self.vert else self.avgy)
+
+def findPages(string):
+	rangeList = [i.replace(" ", "") for i in string.split(",")]
+	pageSet = set([])
+	for value in rangeList:
+		if value != "":
+			match = re.match(r"\d+-\d+$", value)
+			if match:
+				dash = re.search(r"-", value).start()
+				lower, upper = int(value[:dash]), int(value[dash+1:])
+				if lower <= upper:
+					for i in range(lower, upper + 1):
+						pageSet.add(i)
+				
+				else:
+					raise AttributeError("Incorrectly formatted page range.")
+			elif re.match(r"\d+$", value):
+				pageSet.add(int(value))
+			else:
+				raise AttributeError("Incorrectly formatted page range.")
+	return pageSet
+
 	
 def convertPdf(pdf, density=500):
 	try:
@@ -74,12 +98,27 @@ def convertPdf(pdf, density=500):
 	subprocess.run("convert -density %s -depth 1 %s %s" %(str(density), pdf, destName), shell=True)
 	
 def convertPdfs(pdfList, threads=4):
-	newPdfList = []	
-	for i in range(0,len(pdfList),threads):
+	newPdfList = []
+	pdfPageList = []
+	for pdf in pdfList:
+		try:
+			close = re.search("\]", pdf)
+			if close:
+				start = re.search(r".pdf((\[[\d,\-]+\]$)|$)", pdf).start() + 5
+				end = close.start()
+				pageSet = findPages(pdf[start:end])
+				for i in pageSet:
+					pdfPageList.append(pdf[:start] + str(i) + "]")
+			else:
+				pdfPageList.append(pdf)
+		except AttributeError:
+			print(pdf + " is not a valid pdf name")
+	
+	for i in range(0,len(pdfPageList),threads):
 		try:		
-			newPdfList.append(tuple(pdfList[i:i+threads]))
+			newPdfList.append(tuple(pdfPageList[i:i+threads]))
 		except IndexError:
-			newPdfList.append(tuple(pdfList[i:]))
+			newPdfList.append(tuple(pdfPageList[i:]))
 	for pdfTuple in newPdfList:
 		threads = [Thread(target=convertPdf, args=(pdfTuple[i],)) for i in range(0,len(pdfTuple))]
 		for thread in threads:

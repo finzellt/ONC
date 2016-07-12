@@ -8,7 +8,7 @@ WAVELENGTH REGIME: optical
 TIME SYSTEM: JD
 ASSUMED DATE OF OUTBURST: NA
 TELESCOPE: David Dunlap Observatory 61 cm Reflector
-OBSERVER: James K. DeRoux
+OBSERVER: DeRoux, James K.
 REFERENCE: DeRoux et al. (1978)
 BIBCODE: 1978IBVS.1519....1D
 DATA FILENAME: V1668_Cyg_DeRoux_optical_Photometry.csv

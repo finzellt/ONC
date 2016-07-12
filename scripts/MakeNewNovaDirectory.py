@@ -6,9 +6,6 @@ import datetime as dt
 import math as m 
 
 
-
-
-
 NewNovaName = sys.argv[1]
 #CurrentWorkingDirectory = os.getcwd()
 

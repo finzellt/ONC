@@ -54,15 +54,16 @@ while i < len(dataFields):
 ticketText = ticketText[:-1]
 
 if datatype == "Photometry":
-	author = userInput[11].lstrip()
+	author = userInput[11].strip().split()[0].replace(",", "")
 	novaName = userInput[0].strip().replace(" ", "_")
 	regime = userInput[6].replace(" ", "")
 if datatype == "Spectra":
-	author = userInput[6].lstrip()
+	author = userInput[6].strip().split()[0]
 	regime = userInput[3].replace(" ", "")
 	novaName = userInput[0].replace(" ", "")
+print(author)
 	
-myFile = open("../Individual_Novae/" + novaName + "/Tickets/" + directory + "/" + novaName + "_" + author.split()[0].replace(",", "") + "_" + regime + "_" + datatype + ".txt", "w")
+myFile = open("../Individual_Novae/" + novaName + "/Tickets/" + directory + "/" + novaName + "_" + author + "_" + regime + "_" + datatype + ".txt", "w")
 myFile.write(ticketText)
 myFile.close()
 

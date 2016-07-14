@@ -8,24 +8,18 @@ import re
 import subprocess
 from threading import Thread
 from asyncio import Queue
-import argparse
-
+import sys
 
 defaultPdfList = []
 #enter pdfs here or use one of below methods (input prompt or command line argument)
-defaultPdfList = ["V723Cas_test.pdf[15]"]
+defaultPdfList = ["V723Cas_test.pdf[15]", "V723Cas_test.pdf[16]"]
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-a", "--auto", help="Finds table automatically.", action="store_true")
-parser.add_argument("filenames", help="Names of files to be processed.", type=str, nargs="*")
-parser.add_argument("-z", "--zero", help ="If used, page numbers will index from 0 instead of 1.", action="store_true")
-args = parser.parse_args()
-pdfList = args.filenames
-auto = True if args.auto else False
-zero = 0 if args.zero else 1
+pdfList = []
+if len(sys.argv) > 1:
+	for i in range(1, len(sys.argv)):
+		pdfList.append(sys.argv[i])
 
-
-if pdfList == []:
+else:
 	firstString = "skip"
 	while True:
 		pdfList.append(input("Enter a pdf name (or press enter to %s): " %(firstString,)))
@@ -70,7 +64,6 @@ class Line:
 		return (self.avgx if self.vert else self.avgy)
 
 def findPages(string):
-	global zero
 	rangeList = [i.replace(" ", "") for i in string.split(",")]
 	pageSet = set([])
 	for value in rangeList:
@@ -81,19 +74,18 @@ def findPages(string):
 				lower, upper = int(value[:dash]), int(value[dash+1:])
 				if lower <= upper:
 					for i in range(lower, upper + 1):
-						pageSet.add(i - zero)
+						pageSet.add(i)
 				
 				else:
 					raise AttributeError("Incorrectly formatted page range.")
 			elif re.match(r"\d+$", value):
-				pageSet.add(int(value) - zero)
+				pageSet.add(int(value))
 			else:
 				raise AttributeError("Incorrectly formatted page range.")
 	return pageSet
 
 	
-def convertPdf(pdf, density=900):
-	global auto
+def convertPdf(pdf, density=500):
 	try:
 		sufIndex = re.search(r".pdf((\[[\d,\-]+\]$)|$)",pdf).start()
 		suffix = pdf[sufIndex+4:]
@@ -102,27 +94,8 @@ def convertPdf(pdf, density=900):
 	except AttributeError:
 		print(pdf + " is not a valid pdf name")
 		return 1
-		pdfPrefix = pdf[:-4]
-		suffix = ""
-	if auto:
-		destName = "__working/%s%s.pbm" %(pdfPrefix, suffix)
-		subprocess.run("convert -density %s -depth 1 %s %s" %(str(density), pdf, destName), shell=True)
-		
-
-	else:
-		destName = "__working/%s%s.png" %(pdfPrefix, suffix)
-		subprocess.run("convert -density %s -depth 1 %s %s" %(str(density), pdf, destName), shell=True)
-		while True:
-			subprocess.run("gthumb " + destName, shell=True)
-			x = ""			
-			while True:
-				x = input("Did you crop the image correctly? [Y/N]: ") 
-				if x.strip() in ["Y", "y", "N", "n"]: break
-			if x.strip() in ["Y", "y"]: break	
-		
-		subprocess.run("eog " + destName, shell=True)
-		subprocess.run("convert -density %s -depth 1 %s %s" %(str(density), pdf, destName[:-4] +".pbm"), shell=True)
-		subprocess.run("rm " + destName, shell=True)
+	destName = "__working/%s%s.pbm" %(pdfPrefix, suffix)
+	subprocess.run("convert -density %s -depth 1 %s %s" %(str(density), pdf, destName), shell=True)
 	
 def convertPdfs(pdfList, threads=4):
 	newPdfList = []
@@ -272,7 +245,7 @@ def get_vlines(pix, w, h, color="black", V_THRESH = 1000, black_thickness = 0):
 					not_moved = False
 
 			elif color == "white":
-				if y + black_thickness < h and black != 0 and pix[x, y + black_thickness] == pixMatch:				
+				if y + black_thickness < h and black != 0 and pix[x, y + black_thickness + 1] == pixMatch:				
 					y += black_thickness + 1
 					black += black_thickness + 1		
 				elif black > V_THRESH:
@@ -323,118 +296,69 @@ def findTables(hlines, width, ROW_THRESH = 250):
 		tableList.append(tuple(nextTable) + (start, len(hlines)-1))
 	return tableList
 
-def OCR(tabIm, hlines, vlines, imageFile, t=""):
-	t = "" if t == "" else "-" + t
-	contents = []
-	for i in range(len(hlines) - 1):
-		contents.append([])
-		for j in range(len(vlines) - 1):
-			fileName = "%s%s-%s-%s.pbm" %(imageFile[:-4],t,j,i)
-			
-			tabIm.crop((vlines[j].avgx, hlines[i].avgy, vlines[j+1].avgx-1, hlines[i+1].avgy-1)).save(fileName)					
-			subprocess.run("tesseract %s %s" %(fileName, fileName[:-4]), shell=True) #stdout=subprocess.PIPE)
-				
-			txtFile = open(fileName[:-4] + ".txt", "r")
-			contents[i].append(re.sub(r"_+$", "", txtFile.read().strip().replace(",","_")))
-			txtFile.close()
-			if contents[i][j] == "":
-				subprocess.run("gocr -o %s.txt %s" %(fileName[:-4], fileName), shell=True)
-				txtFile = open(fileName[:-4] + ".txt", "r")
-				contents[i][j] = re.sub(r"_+$", "", txtFile.read().strip().replace(",","_"))
-				txtFile.close()
-				
-	rows = [(",".join(row)).replace("\n", "") for row in contents]
-	for i in range(len(rows)-1,-1,-1):
-		if re.match(r"^,+$", rows[i]):
-			del rows[i]
-	csvText = "\n".join(rows)
-	csvFile = open(imageFile[10:-4] + t + ".csv", "w")
-	csvFile.write(csvText)
-	csvFile.close()
 
-
-def processImage(imageFile, autoFind=True):	
+def processImage(imageFile):
 	im = Image.open(imageFile)
 	im = im.convert("1")
 	pix = im.load()
 	width, height = im.size
+	table_lines = get_hlines(pix, width, height)
+	tables = findTables(table_lines, width)
 	
-	if autoFind:
-		table_lines = get_hlines(pix, width, height)
-		tables = findTables(table_lines, width, ROW_THRESH = height // 15)
-	
-		max_thickness = 0
-		for hline in table_lines:
-			if hline.thickness > max_thickness:
-				max_thickness = hline.thickness 
+	max_thickness = 0
+	for hline in table_lines:
+		if hline.thickness > max_thickness:
+			max_thickness = hline.thickness 
 
-		for t in range(len(tables)):
-			table = tables[t]
-			tabIm = im.crop(table[:4])
-			tabIm.save("__working/test.pbm")
-			w, h = tabIm.size
-			tabPix = tabIm.load()
-			vlines_black = get_vlines(tabPix, w, h, V_THRESH = h - max_thickness * len(table_lines) - h // 20)
-			vlines_white = get_vlines(tabPix, w, h, color = "white", V_THRESH = h - max_thickness * len(table_lines) - h // 20, black_thickness = max_thickness)
+	for t in range(len(tables)):
+		table = tables[t]
+		tabIm = im.crop(table[:4])
+		w, h = tabIm.size
+		tabPix = tabIm.load()
+		vlines_black = get_vlines(tabPix, w, h, V_THRESH = h - max_thickness * len(table_lines) - h // 20)
+		vlines_white = get_vlines(tabPix, w, h, color = "white", V_THRESH = h - max_thickness * len(table_lines) - h // 20, black_thickness = max_thickness)
+		hlines_white = get_hlines(tabPix, w, h, color = "white", H_THRESH = w - 250)
+		hlines_black = get_hlines(tabPix, w, h, H_THRESH = w - 250)
 
-			max_vert_thickness = 0
-			for vline in table_lines:
-				if vline.thickness > max_vert_thickness:
-					max_vert_thickness = hline.thickness
-
-			hlines_white = get_hlines(tabPix, w, h, color = "white", H_THRESH = w - 250, black_thickness = max_vert_thickness)
-			hlines_black = get_hlines(tabPix, w, h, H_THRESH = w - 250)
-
-			i = 0
-			while i < len(vlines_white):
-				if vlines_white[i].thickness < w / 50 :
-					vlines_white.remove(vlines_white[i])
-				else:
-					i += 1
-	
-			hlines = sorted(hlines_black + hlines_white , key = lambda x: x.cmpKey())
-			vlines = sorted(vlines_black + vlines_white + [Line(0,0,0,h-1,"white"),Line(w-1,0,w-1,h-1,"white")], key = lambda x: x.cmpKey())
-
-			print(hlines)
-			print(vlines)
-			print(w,h)
-			OCR(tabIm, hlines, vlines, imageFile, t=str(t))
-			
-	else:
-		w,h = width, height
-
-		hlines_black = get_hlines(pix, w, h, H_THRESH = 2*w//3)
-		vlines_black = get_vlines(pix, w, h, V_THRESH = 2*h//3)
-		max_thickness = 0
-		for hline in hlines_black:
-			if hline.thickness > max_thickness:
-				max_thickness = hline.thickness 
-		
-		max_vert_thickness = 0
-		for vline in vlines_black:
-			if vline.thickness > max_vert_thickness:
-				max_vert_thickness = hline.thickness
-
-
-		hlines_white = get_hlines(pix, w, h, color = "white", H_THRESH = w - w//10, black_thickness = max_vert_thickness)
-		vlines_white = get_vlines(pix, w, h, color = "white", V_THRESH = h - h//10, black_thickness = max_thickness)
-		
 		i = 0
 		while i < len(vlines_white):
-			if vlines_white[i].thickness < w / 60 :
+			if vlines_white[i].thickness < w / 50 :
 				vlines_white.remove(vlines_white[i])
 			else:
 				i += 1
-			
+	
 		hlines = sorted(hlines_black + hlines_white, key = lambda x: x.cmpKey())
-		vlines = sorted(vlines_black + vlines_white + [Line(0,0,0,h-1,"white"),Line(w-1,0,w-1,h-1,"white")], key = lambda x: x.cmpKey())
-
-		print(hlines)
-		print(vlines)
-		print(w,h)
-		OCR(im, hlines, vlines, imageFile)
+		vlines = sorted(vlines_black + vlines_white, key = lambda x: x.cmpKey())
 		
+		contents = []
+		for i in range(len(hlines) - 1):
+			contents.append([])
+			for j in range(len(vlines) - 1):
+				fileName = "%s-%s-%s-%s.pbm" %(imageFile[:-4],t,j,i)
+				tabIm.crop((vlines[j].avgx, hlines[i].avgy, vlines[j+1].avgx, hlines[i+1].avgy)).save(fileName)					
+				subprocess.run("tesseract %s %s" %(fileName, fileName[:-4]), shell=True) #stdout=subprocess.PIPE)
+				#process.wait()				
+				#output, err = process.communicate()
+				#if re.search(r"Empty page!!"):
+				#	subprocess.run("convert -density 500 -density	
+				txtFile = open(fileName[:-4] + ".txt", "r")
+				contents[i].append(re.sub(r"_+$", "", txtFile.read().strip().replace(",","_")))
+				txtFile.close()
+				if contents[i][j] == "":
+					subprocess.run("gocr -o %s.txt %s" %(fileName[:-4], fileName), shell=True)
+					txtFile = open(fileName[:-4] + ".txt", "r")
+					contents[i][j] = re.sub(r"_+$", "", txtFile.read().strip().replace(",","_"))
+					txtFile.close()
+				
 
+		rows = [(",".join(row)).replace("\n", "") for row in contents]
+		for i in range(len(rows)-1,-1,-1):
+			if re.match(r"^,+$", rows[i]):
+				del rows[i]
+		csvText = "\n".join(rows)
+		csvFile = open(imageFile[10:-4] + ".csv", "w")
+		csvFile.write(csvText)
+		csvFile.close()
 
 			#title row unknown
 	#	else if table[5] - table[4] == 2:
@@ -448,9 +372,8 @@ def processImage(imageFile, autoFind=True):
 			
 
 def workerTask(q):
-	global auto
 	while not q.empty():
-		processImage(q.get_nowait()[0], autoFind=auto)
+		processImage(q.get_nowait()[0])
 		q.task_done()
 		
 if not os.path.exists("__working"):
@@ -474,5 +397,5 @@ q.join()
 for thread in threads:
 	thread.join()
 
-#subprocess.run("rm -r __working", shell=True)
+subprocess.run("rm -r __working", shell=True)
 

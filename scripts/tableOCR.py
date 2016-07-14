@@ -53,7 +53,7 @@ class Line:
 		yspan = range(self.y1-1, self.y2+2)
 		xspan = range(self.x1-1, self.x2+2)
 		if (l.y1 in yspan or l.y2 in yspan or l.avgy in yspan) and (l.x1 in xspan or l.x2 in xspan or l.avgx in xspan) and l.vert == self.vert and self.color == l.color:
-			if l.length + 20 > self.length and self.length - 20 < l.length:
+			if l.length + 1000 > self.length and self.length - 1000 < l.length:
 				return Line(min(self.x1,l.x1), min(self.y1,l.y1), max(self.x2,l.x2), max(self.y2,l.y2), self.color)
 			else:
 				return (self if self.length >= l.length else l)
@@ -116,11 +116,10 @@ def convertPdf(pdf, density=900):
 			subprocess.run("gthumb " + destName, shell=True)
 			x = ""			
 			while True:
-				x = input("Did you crop the image correctly? [Y/N]: ") 
+				x = input("Did you crop %s correctly? [Y/N]: " %(pdf,)) 
 				if x.strip() in ["Y", "y", "N", "n"]: break
 			if x.strip() in ["Y", "y"]: break	
 		
-		subprocess.run("eog " + destName, shell=True)
 		subprocess.run("convert -density %s -depth 1 %s %s" %(str(density), pdf, destName[:-4] +".pbm"), shell=True)
 		subprocess.run("rm " + destName, shell=True)
 	
@@ -283,6 +282,7 @@ def get_vlines(pix, w, h, color="black", V_THRESH = 1000, black_thickness = 0):
 		
 			y += 1
 		x += 1
+	print(vlines)
 	if len(vlines) != 0:
 		lineList = [vlines[0]]
 		for i in range(1, len(vlines)):
@@ -332,7 +332,7 @@ def OCR(tabIm, hlines, vlines, imageFile, t=""):
 			fileName = "%s%s-%s-%s.pbm" %(imageFile[:-4],t,j,i)
 			
 			tabIm.crop((vlines[j].avgx, hlines[i].avgy, vlines[j+1].avgx-1, hlines[i+1].avgy-1)).save(fileName)					
-			subprocess.run("tesseract %s %s" %(fileName, fileName[:-4]), shell=True) #stdout=subprocess.PIPE)
+			subprocess.run("tesseract %s %s" %(fileName, fileName[:-4]), shell=True) 
 				
 			txtFile = open(fileName[:-4] + ".txt", "r")
 			contents[i].append(re.sub(r"_+$", "", txtFile.read().strip().replace(",","_")))
@@ -420,6 +420,7 @@ def processImage(imageFile, autoFind=True):
 		vlines_white = get_vlines(pix, w, h, color = "white", V_THRESH = h - h//10, black_thickness = max_thickness)
 		
 		i = 0
+		
 		while i < len(vlines_white):
 			if vlines_white[i].thickness < w / 60 :
 				vlines_white.remove(vlines_white[i])
@@ -432,19 +433,8 @@ def processImage(imageFile, autoFind=True):
 		print(hlines)
 		print(vlines)
 		print(w,h)
+		
 		OCR(im, hlines, vlines, imageFile)
-		
-
-
-			#title row unknown
-	#	else if table[5] - table[4] == 2:
-			#title in first row
-		
-	#	else if table[5] - table[4] == 3:
-	#		#title in first two rows
-
-	#	else:
-			#title in first row, rows known
 			
 
 def workerTask(q):

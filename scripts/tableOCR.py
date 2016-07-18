@@ -120,7 +120,7 @@ def convertPdf(pdf, density=900):
 				if x.strip() in ["Y", "y", "N", "n"]: break
 			if x.strip() in ["Y", "y"]: break	
 		
-		subprocess.run("convert -density %s -depth 1 %s %s" %(str(density), pdf, destName[:-4] +".pbm"), shell=True)
+		subprocess.run("convert -density %s -depth 1 %s %s" %(str(density), destName, destName[:-4] +".pbm"), shell=True)
 		subprocess.run("rm " + destName, shell=True)
 	
 def convertPdfs(pdfList, threads=4):
@@ -464,5 +464,5 @@ q.join()
 for thread in threads:
 	thread.join()
 
-#subprocess.run("rm -r __working", shell=True)
+subprocess.run("rm -r __working", shell=True)
 

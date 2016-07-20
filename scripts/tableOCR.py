@@ -107,11 +107,15 @@ def convertPdf(pdf, density=900):
 	if auto:
 		destName = "__working/%s%s.pbm" %(pdfPrefix, suffix)
 		subprocess.run("convert -density %s -depth 1 %s %s" %(str(density), pdf, destName), shell=True)
-		
+		return 0;
 
 	else:
 		destName = "__working/%s%s.png" %(pdfPrefix, suffix)
-		subprocess.run("convert -density %s -depth 1 %s %s" %(str(density), pdf, destName), shell=True)
+		Completed = subprocess.run("convert -density %s -depth 1 %s %s" %(str(density), pdf, destName), shell=True, stderr = subprocess.PIPE)
+		if Completed.stderr.decode() != '': 
+			print("Could not find " + pdf)
+			return 1;
+
 		while True:
 			subprocess.run("gthumb " + destName, shell=True)
 			x = ""			
@@ -120,10 +124,13 @@ def convertPdf(pdf, density=900):
 				if x.strip() in ["Y", "y", "N", "n"]: break
 			if x.strip() in ["Y", "y"]: break	
 		
+		
 		subprocess.run("convert -density %s -depth 1 %s %s" %(str(density), destName, destName[:-4] +".pbm"), shell=True)
-		subprocess.run("rm " + destName, shell=True)
+		os.remove(destName)
+		return 0;
 	
 def convertPdfs(pdfList, threads=4):
+	global auto
 	newPdfList = []
 	pdfPageList = []
 	for pdf in pdfList:
@@ -146,11 +153,15 @@ def convertPdfs(pdfList, threads=4):
 		except IndexError:
 			newPdfList.append(tuple(pdfPageList[i:]))
 	for pdfTuple in newPdfList:
-		threads = [Thread(target=convertPdf, args=(pdfTuple[i],)) for i in range(0,len(pdfTuple))]
-		for thread in threads:
-			thread.start()
-		for thread in threads:
-			thread.join()
+		if auto:
+			threads = [Thread(target=convertPdf, args=(pdfTuple[i],)) for i in range(0,len(pdfTuple))]
+			for thread in threads:
+				thread.start()
+			for thread in threads:
+				thread.join()
+		else:
+			for pdfName in pdfTuple:
+				convertPdf(pdfName)
 
 def get_hlines(pix, w, h, color="black", H_THRESH = 1000, black_thickness = 0):
 	"""Finds horizontal lines, returns list of Line objects"""
@@ -282,7 +293,7 @@ def get_vlines(pix, w, h, color="black", V_THRESH = 1000, black_thickness = 0):
 		
 			y += 1
 		x += 1
-	print(vlines)
+
 	if len(vlines) != 0:
 		lineList = [vlines[0]]
 		for i in range(1, len(vlines)):
@@ -325,28 +336,49 @@ def findTables(hlines, width, ROW_THRESH = 250):
 
 def OCR(tabIm, hlines, vlines, imageFile, t=""):
 	t = "" if t == "" else "-" + t
-	contents = []
+	
+	contents = []	
 	for i in range(len(hlines) - 1):
 		contents.append([])
+		for j in range(len(vlines) - 1):	
+			contents[i].append("")
+
+	devnull = open(os.devnull, "w")
+	for i in range(len(hlines) - 1):
+		print("OCR for row " + str(i))
 		for j in range(len(vlines) - 1):
 			fileName = "%s%s-%s-%s.pbm" %(imageFile[:-4],t,j,i)
 			
-			tabIm.crop((vlines[j].avgx, hlines[i].avgy, vlines[j+1].avgx-1, hlines[i+1].avgy-1)).save(fileName)					
-			subprocess.run("tesseract %s %s" %(fileName, fileName[:-4]), shell=True) 
+			tabIm.crop((vlines[j].avgx, hlines[i].avgy, vlines[j+1].avgx-1, hlines[i+1].avgy-1)).save(fileName)		
+					
+			subprocess.run("tesseract %s %s" %(fileName, fileName[:-4]), shell=True, stdout=devnull, stderr=devnull) 
 				
 			txtFile = open(fileName[:-4] + ".txt", "r")
-			contents[i].append(re.sub(r"_+$", "", txtFile.read().strip().replace(",","_")))
+			contents[i][j] = re.sub(r"_+$", "", txtFile.read().strip().replace(",","_").replace('"', ''))
 			txtFile.close()
 			if contents[i][j] == "":
-				subprocess.run("gocr -o %s.txt %s" %(fileName[:-4], fileName), shell=True)
+				subprocess.run("gocr -o %s.txt %s" %(fileName[:-4], fileName), shell=True, stdout=devnull, stderr=devnull)
 				txtFile = open(fileName[:-4] + ".txt", "r")
 				contents[i][j] = re.sub(r"_+$", "", txtFile.read().strip().replace(",","_"))
 				txtFile.close()
-				
+			elif re.search("\d+\D*\d+", contents[i][j]):
+				contents[i][j] = contents[i][j].replace("?", "7").replace("'", "")
+				#if not re.match(r"-?\d+\.?\d+"):
+				#	subprocess.run("gocr -o %s.txt %s" %(fileName[:-4], fileName), shell=True)
+				#	txtFile = open(fileName[:-4] + ".txt", "r")
+				#	temp = re.sub(r"_+$", "", txtFile.read().strip().replace(",","_"))
+				#	txtFile.close()
+	devnull.close()
+			
 	rows = [(",".join(row)).replace("\n", "") for row in contents]
-	for i in range(len(rows)-1,-1,-1):
+	i = 0
+	while i < len(rows):
 		if re.match(r"^,+$", rows[i]):
-			del rows[i]
+			rows = rows[:i] + rows[i+1:]
+		else:
+			i += 1
+	if re.match(r"^,+$", rows[-1]): rows = rows[:-1]
+
 	csvText = "\n".join(rows)
 	csvFile = open(imageFile[10:-4] + t + ".csv", "w")
 	csvFile.write(csvText)
@@ -393,11 +425,16 @@ def processImage(imageFile, autoFind=True):
 					i += 1
 	
 			hlines = sorted(hlines_black + hlines_white , key = lambda x: x.cmpKey())
-			vlines = sorted(vlines_black + vlines_white + [Line(0,0,0,h-1,"white"),Line(w-1,0,w-1,h-1,"white")], key = lambda x: x.cmpKey())
-
-			print(hlines)
-			print(vlines)
-			print(w,h)
+			vlines = sorted(vlines_black + vlines_white, key = lambda x: x.cmpKey())
+			try:			
+				vlines[0] = Line(0,0,0,h-1,"white") + vlines[0]
+			except ValueError:
+				vlines = [Line(0,0,0,h-1,"white")] + vlines
+			try:			
+				vlines[-1] = vlines[-1] + Line(w-1,0,w-1,h-1,"white")
+			except ValueError:
+				vlines.append(Line(w-1,0,w-1,h-1,"white"))	
+				
 			OCR(tabIm, hlines, vlines, imageFile, t=str(t))
 			
 	else:
@@ -428,12 +465,17 @@ def processImage(imageFile, autoFind=True):
 				i += 1
 			
 		hlines = sorted(hlines_black + hlines_white, key = lambda x: x.cmpKey())
-		vlines = sorted(vlines_black + vlines_white + [Line(0,0,0,h-1,"white"),Line(w-1,0,w-1,h-1,"white")], key = lambda x: x.cmpKey())
-
-		print(hlines)
-		print(vlines)
-		print(w,h)
+		vlines = sorted(vlines_black + vlines_white, key = lambda x: x.cmpKey())
 		
+		try:			
+			vlines[0] = Line(0,0,0,h-1,"white") + vlines[0]
+		except ValueError:
+			vlines = [Line(0,0,0,h-1,"white")] + vlines
+		try:			
+			vlines[-1] = vlines[-1] + Line(w-1,0,w-1,h-1,"white")
+		except ValueError:
+			vlines.append(Line(w-1,0,w-1,h-1,"white"))
+
 		OCR(im, hlines, vlines, imageFile)
 			
 
@@ -464,5 +506,7 @@ q.join()
 for thread in threads:
 	thread.join()
 
-subprocess.run("rm -r __working", shell=True)
+for filename in os.listdir("__working"):	
+	os.remove("__working/" + filename)
+os.rmdir("__working")
 

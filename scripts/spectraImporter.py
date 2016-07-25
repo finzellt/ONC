@@ -41,7 +41,7 @@ def convertDateUTC(date):
 realNovaNameDict = {}
 novaDict = {}
 
-metadataFields = ['FILENAME', 'WAVE COL NUM', 'FLUX COL NUM', 'FLUX ERR COL NUM', 'FLUX UNITS', 'DATE', 'OBSERVER', 'TELESCOPE', 'INSTRUMENT', 'DISPERSION', 'WAVE RANGE 1', 'WAVE RANGE 2']
+metadataFields = ['FILENAME', 'WAVELENGTH COL NUM', 'FLUX COL NUM', 'FLUX ERR COL NUM', 'FLUX UNITS', 'DATE', 'OBSERVER', 'TELESCOPE', 'INSTRUMENT', 'DISPERSION', 'WAVELENGTH RANGE 1', 'WAVELENGTH RANGE 2']
 
 ticketDataFields = ["OBJECT NAME: ", "FLUX UNITS: ", "FLUX ERROR UNITS: ", "WAVELENGTH REGIME: ", "TIME SYSTEM: ", "ASSUMED DATE OF OUTBURST: ", "REFERENCE: ", "BIBCODE: ", "DEREDDENED FLAG: ", "METADATA FILENAME: ", "FILENAME COLUMN: ", "WAVELENGTH COLUMN: ", "FLUX COLUMN: ", "FLUX ERROR COLUMN: ", "FLUX UNITS COLUMN: ", "DATE COLUMN: ", "TELESCOPE COLUMN: ", "INSTRUMENT COLUMN: ", "OBSERVER COLUMN: ", "SNR COLUMN: ", "DISPERSION COLUMN: ", "RESOLUTION COLUMN: ", "WAVELENGTH RANGE COLUMN: ", "TICKET STATUS: "]
 
@@ -118,7 +118,7 @@ for filename in os.listdir(directory):
 				
 			
 for realNovaName in novaDict:
-	string = ",".join(metadataFields) + "\n"
+	string = "#" + ",".join(metadataFields) + "\n"
 	
 	sure = False
 	

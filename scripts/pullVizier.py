@@ -293,7 +293,7 @@ for f in fileSplitList:
 
 		
 		
-		ticket_fields = [novaName, "JD", "Mags", "Mags", "Johnson-Cousins", "Vega", "Optical", "JD", "NA", names[4], names[5], names[6], names[7], os.path.split(fileName)[-1], time_col, flux_col, flux_err_col, band_col, "NA", "NA", observ_col, "NA", "Completed"]
+		ticket_fields = [key, "JD", "Mags", "Mags", "Johnson-Cousins", "Vega", "Optical", "JD", "NA", names[4], names[5], names[6], names[7], os.path.split(fileName)[-1], time_col, flux_col, flux_err_col, band_col, "NA", "NA", observ_col, "NA", "Completed"]
 		write_ticket(os.path.join('..', 'Individual_Novae', key, "Tickets", 'CompletedTickets', key + f[4:-4] + '.txt'), ticket_fields)
 		print("Completed writing file " + fileName)
 

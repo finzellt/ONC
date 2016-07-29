@@ -3,7 +3,7 @@ from tqdm import tqdm
 import re
 import os
 import os.path
-#from .utils import convert_line_bands
+#from .utils import convert_line_bands, convert_jd, get_dec_digits
 
 _o = "Optical"
 _ir = "Infrared"
@@ -37,12 +37,72 @@ def write_ticket(filename, ticket_fields):
 
 	return 0
 
-def dec_digits(string):
+def convert_jd(contentsList, increase=2450000, **kwargs):
+	"""Inputs a list of list of file contents, adds increase to JD column """
+	manual = False if increase >= 2400000 and increase <= 2500000 else True
+	
+	zeros = len(str(increase)) - re.search(r"0*$", str(increase)).start()
+		
+	def digits(x):
+		i = 0
+		while True:
+			if int(x) // (10 ** i) == 0:
+				return i
+			else:
+				i += 1
+	
+	index = -1
+	if "jdCol" in kwargs:
+		index = kwargs[jdCol]
+	else:
+		for line in contentsList:
+			for i in range(len(line)):
+				if re.search(r"(jd)|(julian)",line[i], re.IGNORECASE):
+					index = i
+					break
+			if index != -1:
+				break
+	if index == -1:
+		raise ValueError("Could not find JD column.")
+		return contentsList
+	
+	longJd = increase
+	for i in range(len(contentsList)):
+		if contentsList[i][0].strip().startswith("#"):
+			continue
+		try:
+			dec_digits = str(get_dec_digits(contentsList[i][index]))
+			mjd = float(contentsList[i][index].strip())
+		except IndexError:
+			continue
+
+		if digits(mjd) >= 4:
+			if digits(mjd) == 4: mjd += increase
+			elif digits(mjd) == 5 and not manual: mjd += 2400000
+			elif digits(mjd) == 5 and manual: mjd += increase
+			elif digits(mjd) == 6: mjd += 2000000
+			longJd = mjd
+		else:
+			mjdDigits = digits(mjd)
+			if zeros > mjdDigits:	
+				power = 10 ** mjdDigits
+				mjd += (longJd // power) * power
+			else:
+				mjd += increase
+
+		
+		contentsList[i][index] = ("{:.%sf}" %(dec_digits)).format(mjd)
+			
+	return contentsList
+
+def get_dec_digits(string):
+	
 	for i in range(len(string)):
 		if string[i] == '.':
 			return len(string) - i - 1
 
 	return 0
+
 
 def convert_line_bands(line, titles):
 	bands = r'UBVRI'
@@ -84,8 +144,8 @@ def convert_line_bands(line, titles):
 				
 			minuend = line[i].strip()
 			
-			decs1 = dec_digits(minuend)
-			decs2 = dec_digits(subtrahend)
+			decs1 = get_dec_digits(minuend)
+			decs2 = get_dec_digits(subtrahend)
 			decs = decs1 if decs1 > decs2 else decs2
 			if not title[0:x] in mag_dict:
 				try: mag_dict[title[0:x]] = ('{:.%df}' %(decs)).format(float(subtrahend) + float(minuend))
@@ -219,7 +279,11 @@ for f in fileSplitList:
 
 	textArray = [re.split(''' (?=(?:[^'"]|'[^']*'|"[^"]*")*$)''', textArray[i]) for i in range(len(textArray))]
 	textArray = [[word.strip().replace('"', '') for word in line] for line in textArray]
+	if not textArray[0][0].startswith('#'):
+		textArray[0][0] = '#' + textArray[0][0]	
 	titles = textArray[0]	
+
+	textArray = convert_jd(textArray)
 
 	t = convert_line_bands(textArray[1], titles)
 	separate_band_arr = [t[1]] + t[0]
@@ -230,8 +294,10 @@ for f in fileSplitList:
 	titles = t[1]
 	textArray = separate_band_arr
 	
+
 	if not titles[0].startswith("#"):
 		titles[0] = "#" + titles[0]
+
 	for i in range(len(titles)):
 		if re.search(r"(nova)|(name)", titles[i].lower()):
 			novaNameCol = i
@@ -318,6 +384,8 @@ for f in otherFileList:
 	textArray = [[word.strip() for word in line] for line in textArray]
 	titles = textArray[0]
 	
+	textArray = convert_jd(textArray)
+
 	t = convert_line_bands(textArray[1], titles)
 	separate_band_arr = [t[1]] + t[0]
 	
@@ -328,6 +396,8 @@ for f in otherFileList:
 	textArray = separate_band_arr
 	titles = t[1]
 
+	if not titles[0].startswith('#'):
+		titles[0] = '#' + titles[0]
 	
 	textArray = [",".join(textArray[i]) for i in range(len(textArray))]
 	text = "\n".join(textArray)
@@ -350,6 +420,8 @@ for f in otherFileList:
 		if re.match(r'band', title): band_col = str(i)
 		if re.search(r'jd', title): time_col = str(i)
 		if re.match(r'(source)|(observer)', title): observ_col = str(i)
+
+	novaName = names[0]
 
 	if not os.path.exists("../Individual_Novae/" + novaName):
 		os.system("python3 MakeNewNovaDirectory.py " + novaName)

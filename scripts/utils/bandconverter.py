@@ -1,13 +1,17 @@
 import re
 
-def dec_digits(string):
-	for i in range(len(string))
-		if string[i] = '.':
+__all__ = ['convert_line_bands']
+
+def get_dec_digits(string):
+	
+	for i in range(len(string)):
+		if string[i] == '.':
 			return len(string) - i - 1
 
 	return 0
 
 def convert_line_bands(line, titles):
+	
 	bands = r'UBVRI'
 	mag_dict = {}
 	
@@ -27,8 +31,8 @@ def convert_line_bands(line, titles):
 			subtrahend = mag_dict[title[2]]
 			minuend = line[i].strip()
 
-			decs1 = dec_digits(minuend)
-			decs2 = dec_digits(subtrahend)
+			decs1 = get_dec_digits(minuend)
+			decs2 = get_dec_digits(subtrahend)
 			decs = decs1 if decs1 > decs2 else decs
 			if not titles[0] in mag_dict:
 				mag_dict[titles[0]] = ('{:.%df}' %(decs)).format(float(subtrahend) + float(minuend))
